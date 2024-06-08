@@ -1,0 +1,48 @@
+providers = []
+buildImage = 'ghcr.io/railwayapp/nixpacks:ubuntu-1707782610'
+
+[variables]
+CI = 'true'
+NIXPACKS_METADATA = 'node'
+NODE_ENV = 'production'
+NPM_CONFIG_PRODUCTION = 'false'
+PORT = '3001'
+UNITY_API_ENDPOINT = 'http://backend/graphql'
+
+[phases.setup]
+nixPkgs = [
+    'nodejs_21',
+    'bun',
+]
+nixOverlays = ['https://github.com/railwayapp/nix-npm-overlay/archive/main.tar.gz']
+nixpkgsArchive = 'bf744fe90419885eefced41b3e5ae442d732712d'
+
+[phases.install]
+dependsOn = ['setup']
+cmds = [
+    'npm install -g corepack@0.24.1 && corepack enable',
+    'bun install --no-save --dev --ignore-scripts',
+]
+onlyIncludeFiles = ['package.json', 'bun.lockb']
+cacheDirectories = ['/root/.bun']
+paths = ['/app/node_modules/.bin']
+
+[phases.postinstall]
+dependsOn = ['install']
+cmds = [
+    'bun run postinstall',
+]
+cacheDirectories = ['/root/.bun']
+paths = ['/app/node_modules/.bin']
+
+[phases.build]
+dependsOn = ['postinstall']
+cmds = [
+    'bun run build'
+]
+cacheDirectories = ['node_modules/.cache']
+paths = ['/app/node_modules/.bin']
+
+[start]
+cmd = 'sleep infinity' # 'node .output/server/index.mjs'
+
