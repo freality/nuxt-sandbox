@@ -18,10 +18,11 @@ WORKDIR /app
 
 RUN npm install pm2 -g
 
-# COPY --from=builder ecosystem.config.yml /app/ecosystem.config.yml
+COPY --from=builder /app/ecosystem.config.cjs /app/ecosystem.config.cjs
 COPY --from=builder /app/.output  /app
 
 ENV PORT=3000
 EXPOSE ${PORT}
 
-CMD [ "node", "/app/server/index.mjs" ]
+# CMD [ "node", "/app/server/index.mjs" ]
+CMD [ "pm2", "start", "--no-daemon", "/app/ecosystem.config.cjs" ]
