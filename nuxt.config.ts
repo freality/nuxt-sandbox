@@ -2,4 +2,4 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   sourcemap: { server: true, client: true },
-});
+})
