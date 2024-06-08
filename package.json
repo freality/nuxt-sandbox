@@ -2,6 +2,7 @@
   "name": "nuxt-app",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@9.0.2",
   "engines": {
     "node": ">=18.0.0"
   },

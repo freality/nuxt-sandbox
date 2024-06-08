@@ -6,13 +6,14 @@ CI = 'true'
 NIXPACKS_METADATA = 'node'
 NODE_ENV = 'production'
 NPM_CONFIG_PRODUCTION = 'false'
-PORT = '3001'
 UNITY_API_ENDPOINT = 'http://backend/graphql'
+UNITY_API_WS_ENDPOINT = 'ws://backend/graphql'
 
 [phases.setup]
 nixPkgs = [
     'nodejs_21',
-    'bun',
+    'pnpm-8_x',
+    'pm2'
 ]
 nixOverlays = ['https://github.com/railwayapp/nix-npm-overlay/archive/main.tar.gz']
 nixpkgsArchive = 'bf744fe90419885eefced41b3e5ae442d732712d'
@@ -21,28 +22,18 @@ nixpkgsArchive = 'bf744fe90419885eefced41b3e5ae442d732712d'
 dependsOn = ['setup']
 cmds = [
     'npm install -g corepack@0.24.1 && corepack enable',
-    'bun install --no-save --dev --ignore-scripts',
+    'pnpm i --frozen-lockfile',
 ]
-onlyIncludeFiles = ['package.json', 'bun.lockb']
-cacheDirectories = ['/root/.bun']
-paths = ['/app/node_modules/.bin']
-
-[phases.postinstall]
-dependsOn = ['install']
-cmds = [
-    'bun run postinstall',
-]
-cacheDirectories = ['/root/.bun']
+cacheDirectories = ['/root/.local/share/pnpm/store/v3']
 paths = ['/app/node_modules/.bin']
 
 [phases.build]
-dependsOn = ['postinstall']
-cmds = [
-    'bun run build'
-]
+dependsOn = ['install']
+cmds = ['pnpm run build']
 cacheDirectories = ['node_modules/.cache']
-paths = ['/app/node_modules/.bin']
 
 [start]
-cmd = 'sleep infinity' # 'node .output/server/index.mjs'
+runImage = 'node:20'
+onlyIncludeFiles = ['.output']
+cmd = 'node .output/server/index.mjs'
 
